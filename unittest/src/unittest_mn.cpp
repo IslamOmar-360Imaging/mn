@@ -808,6 +808,21 @@ TEST_CASE("fabric simple function")
 	mn::fabric_free(f);
 }
 
+TEST_CASE("compute zero dimension")
+{
+	mn::Fabric_Settings settings{};
+	settings.workers_count = 3;
+	auto f = mn::fabric_new(settings);
+	auto n = 0;
+
+	mn::compute(f, {0, 1, 1}, {1, 1, 1}, [&](mn::Compute_Args) { ++n; });
+	mn::compute(f, {1, 0, 1}, {1, 1, 1}, [&](mn::Compute_Args) { ++n; });
+	mn::compute(f, {1, 1, 0}, {1, 1, 1}, [&](mn::Compute_Args) { ++n; });
+	CHECK(n == 0);
+
+	mn::fabric_free(f);
+}
+
 TEST_CASE("unbuffered channel with multiple workers")
 {
 	mn::Fabric_Settings settings{};

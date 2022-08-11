@@ -1184,7 +1184,8 @@ namespace mn
 			}
 		}
 
-		wg.add((int)batch.count);
+		if (batch.count > 0)
+			wg.add((int)batch.count);
 		fabric_task_batch_do(self, batch.ptr, batch.count);
 		wg.wait();
 	}
@@ -1200,9 +1201,9 @@ namespace mn
 	compute(Fabric f, Compute_Dims total_size, Compute_Dims tile_size, TFunc&& fn)
 	{
 		Compute_Dims workgroup_num{
-			1 + ((total_size.x - 1) / tile_size.x),
-			1 + ((total_size.y - 1) / tile_size.y),
-			1 + ((total_size.z - 1) / tile_size.z)
+			total_size.x / tile_size.x + (total_size.x % tile_size.x != 0),
+			total_size.y / tile_size.y + (total_size.y % tile_size.y != 0),
+			total_size.z / tile_size.z + (total_size.z % tile_size.z != 0)
 		};
 		if (f == nullptr)
 			_single_threaded_compute(workgroup_num, total_size, tile_size, std::forward<TFunc>(fn));
